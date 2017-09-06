@@ -99,6 +99,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+  public static final String GROUP_NAME = "group_name";
 
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
   private static final CookieManager DEFAULT_COOKIE_MANAGER;

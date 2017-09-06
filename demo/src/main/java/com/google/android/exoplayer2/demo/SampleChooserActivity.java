@@ -96,14 +96,15 @@ public class SampleChooserActivity extends Activity {
       @Override
       public boolean onChildClick(ExpandableListView parent, View view, int groupPosition,
           int childPosition, long id) {
-        onSampleSelected(groups.get(groupPosition).samples.get(childPosition));
+        onSampleSelected(groups.get(groupPosition).samples.get(childPosition), groups.get(groupPosition).title);
         return true;
       }
     });
   }
 
-  private void onSampleSelected(Sample sample) {
-    startActivity(sample.buildIntent(this));
+  private void onSampleSelected(Sample sample, String groupName) {
+    Intent intent = sample.buildIntent(this, groupName);
+    startActivity(intent);
   }
 
   private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
@@ -389,9 +390,15 @@ public class SampleChooserActivity extends Activity {
       this.preferExtensionDecoders = preferExtensionDecoders;
     }
 
-    public Intent buildIntent(Context context) {
-      Intent intent = new Intent(context, PlayerActivity.class);
-      intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders);
+    public Intent buildIntent(Context context, String groupName) {
+        Intent intent;
+        if(groupName.equals("Custom Playlist"))  {
+            intent = new Intent(context, CustomPlayerActivity.class);
+        }else{
+            intent = new Intent(context, PlayerActivity.class);
+        }
+        intent.putExtra(PlayerActivity.GROUP_NAME, groupName);
+        intent.putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, preferExtensionDecoders);
       if (drmSchemeUuid != null) {
         intent.putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, drmSchemeUuid.toString());
         intent.putExtra(PlayerActivity.DRM_LICENSE_URL, drmLicenseUrl);
@@ -399,7 +406,6 @@ public class SampleChooserActivity extends Activity {
       }
       return intent;
     }
-
   }
 
   private static final class UriSample extends Sample {
@@ -418,8 +424,8 @@ public class SampleChooserActivity extends Activity {
     }
 
     @Override
-    public Intent buildIntent(Context context) {
-      return super.buildIntent(context)
+    public Intent buildIntent(Context context, String groupName) {
+      return super.buildIntent(context, groupName)
           .setData(Uri.parse(uri))
           .putExtra(PlayerActivity.EXTENSION_EXTRA, extension)
           .putExtra(PlayerActivity.AD_TAG_URI_EXTRA, adTagUri)
@@ -440,14 +446,14 @@ public class SampleChooserActivity extends Activity {
     }
 
     @Override
-    public Intent buildIntent(Context context) {
+    public Intent buildIntent(Context context, String groupName) {
       String[] uris = new String[children.length];
       String[] extensions = new String[children.length];
       for (int i = 0; i < children.length; i++) {
         uris[i] = children[i].uri;
         extensions[i] = children[i].extension;
       }
-      return super.buildIntent(context)
+      return super.buildIntent(context, groupName)
           .putExtra(PlayerActivity.URI_LIST_EXTRA, uris)
           .putExtra(PlayerActivity.EXTENSION_LIST_EXTRA, extensions)
           .setAction(PlayerActivity.ACTION_VIEW_LIST);
